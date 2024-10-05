@@ -1,0 +1,24 @@
+---
+- block: check_storage_usage
+  description: 'Checking if any mounted storage has usage above 25%'
+  commands:
+    - "df -Ph | awk '+$5 >= 25 {print}'"
+
+- block: check_installed_services
+  description: 'Checking if certain services are present'
+  commands:
+    - 'if ! which docker 2>$1 >/dev/null; then echo "Docker is installed"; else echo "Docker is NOT installed"; fi'
+
+- block: check_services_status
+  description: 'Checking services statuses'
+  commands:
+    - 'uptime'
+    - 'systemctl status docker | head -n 3'
+
+- block: check_logs
+  description: "Checking logs for suspicious activity"
+  commands:
+    - "if $(tail -n 200 /var/log/istream3/rec-service.log | grep 'Connection timed out'); then echo 'Found [Connection timed out] in rec-service.log; else echo '[Connection timed out] not found'; fi"
+  scripts:
+    - 'test.sh'
+...
